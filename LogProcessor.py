@@ -54,6 +54,11 @@ def __markLogFile(classifiedLine, marked_file):
 
 
 @app.route('/')
+def my_form():
+    return flask.render_template("index.html")
+
+
+@app.route('/', methods=['POST'])
 def __main():
     file = str("serverlogs.txt")
     log_file = __LOG_PATH + file
