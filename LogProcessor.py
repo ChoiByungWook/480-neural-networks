@@ -5,6 +5,7 @@ import sys
 import flask
 
 import ServerLogConverter
+from DosClassifier import DosClassifier
 from ProbingClassifier import ProbingClassifier
 
 __LOG_PATH = "logs/"
@@ -27,11 +28,17 @@ def __classifyLogFile(log_file):
     for line in opened_log_file:
         server_log_tuple = ServerLogConverter.convert_line_to_server_log_tuple(line)
         probing_attack = __pc.classify(server_log_tuple)
+        dos_attack = DosClassifier.classify(server_log_tuple)
         # classify and add value to classifiedLine d = ddos, r = r2l...
         classifierString = ""
 
         if probing_attack == 1:
-            classifierString += "r"
+            classifierString += "p"
+        else:
+            classifierString += "-"
+
+        if dos_attack:
+            classifierString += "d"
         else:
             classifierString += "-"
 
