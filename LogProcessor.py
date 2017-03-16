@@ -1,5 +1,6 @@
 import collections
 import fileinput
+import datetime
 import sys
 
 def main():
@@ -13,9 +14,16 @@ def convert_line_to_server_log_tuple(line):
     split_line = line.split(" ")
 
     number = split_line[0]
-    date = split_line[1]
-    time = split_line[2]
-    duration = split_line[3]
+
+    dateMDY = split_line[1]
+    date = datetime.datetime.strptime(dateMDY, "%m/%d/%Y").date()
+
+    timeHMS = split_line[2]
+    time  = datetime.datetime.strptime(timeHMS, "%X").time()
+
+    durationHMS = split_line[3]
+    duration = datetime.datetime.strptime(durationHMS, "%X").time()
+
     protocol = split_line[4]
     src_port = split_line[5]
     destination_port = split_line[6]
