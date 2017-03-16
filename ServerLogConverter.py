@@ -2,6 +2,9 @@ import collections
 
 import datetime
 
+ServerLogTuple = collections.namedtuple('server_log_line', ['number', 'date', 'time', 'duration', 'protocol', 'src_port',
+                                                     'destination_port', 'src_ip', 'destination_ip'])
+
 
 def convert_line_to_server_log_tuple(line):
     ''' Converts line of text from a server log into a named tuple representation.
@@ -9,8 +12,6 @@ def convert_line_to_server_log_tuple(line):
     :param line: Line of server log text
     :return: Named tuple representation of line
     '''
-    ServerLogTuple = collections.namedtuple('log_line', ['number', 'date', 'time', 'duration', 'protocol', 'src_port',
-                                                         'destination_port', 'src_ip', 'destination_ip'])
     split_line = line.rstrip().split(" ")
 
     number = split_line[0]

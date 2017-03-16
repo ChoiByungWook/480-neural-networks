@@ -12,14 +12,40 @@ def main():
     file = str(sys.argv[1])
     log_file = LOG_PATH + file
 
-    # create marked file
+    # copy marked file for classification
     marked_file = LOG_PATH + MARKED + file
     shutil.copyfile(log_file, marked_file)
 
-    for line in fileinput.input(log_file):
+    # classify each line
+    classifiedLines = classifyLogFile(log_file)
+
+    # mark log file with classifies
+    markLogFile(classifiedLines, marked_file)
+
+
+def markLogFile(classifiedLine, marked_file):
+    opened_marked_log_file = fileinput.input(marked_file, inplace=True)
+
+    for line, classifier in zip(opened_marked_log_file, classifiedLine):
+        sys.stdout.write(classifier + line)
+
+    opened_marked_log_file.close()
+
+
+def classifyLogFile(log_file):
+    classifiedLine = []
+
+    opened_log_file = fileinput.input(log_file)
+    for line in opened_log_file:
         server_log_tuple = ServerLogConverter.convert_line_to_server_log_tuple(line)
 
-    fileinput.close()
+        # classify and add value to classifiedLine d = ddos, r = r2l...
+        classifiedLine.append("d ")
+
+    # close original file
+    opened_log_file.close()
+
+    return classifiedLine
 
 
 if __name__ == '__main__':
