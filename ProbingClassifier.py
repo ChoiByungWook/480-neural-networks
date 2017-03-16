@@ -17,13 +17,13 @@ class ProbingClassifier:
             self.calculate_final_score()
             self.current_time = server_log_tuple.time
             self.src_ip_score.clear()
+            self.current_probing_attacks.clear()
 
         __src_ip = server_log_tuple.src_ip
 
         if __src_ip not in self.src_ip_score:
             self.src_ip_score[__src_ip] = 0
 
-        # Adds point
         if server_log_tuple.destination_port == '-':
             return probing_score
 
@@ -31,16 +31,13 @@ class ProbingClassifier:
         self.src_ip_score[__src_ip] += self.__apply_points(destination_port)
 
         if self.src_ip_score[__src_ip] >= 21:
-            if __src_ip not in self.src_ip_score:
-                print("hello")
-                probing_score, self.current_probing_attacks[__src_ip] = 1
+            if __src_ip not in self.current_probing_attacks:
+                self.current_probing_attacks[__src_ip] = 1
+                probing_score = 1
 
         return probing_score
 
     def calculate_final_score(self):
-        # print("Clearing for " + str(self.current_time))
-        # print(self.src_ip_score)
-
         for src_ip in self.current_probing_attacks:
             probing_attack_final_score = ProbingAttackFinalScore(src_ip, self.current_time, self.src_ip_score[src_ip])
             self.final_time_score.append(probing_attack_final_score)
@@ -53,7 +50,6 @@ class ProbingClassifier:
             Destination port greater or equal to 1024: 1 point
             Destination ports 11, 12, 13, 2000: 10 points
         """
-
         if destination_port in (11, 12, 13, 2000):
             return 10
         if destination_port < 1024:

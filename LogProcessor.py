@@ -5,6 +5,7 @@ import sys
 import flask
 
 import ServerLogConverter
+from ProbingClassifier import ProbingClassifier
 
 __LOG_PATH = "logs/"
 __MARKED = "marked_"
@@ -18,14 +19,18 @@ def __classifyLogFile(log_file):
     :param log_file:
     :return:
     '''
+    pc = ProbingClassifier()
     classifiedLine = []
 
     opened_log_file = fileinput.input(log_file)
     for line in opened_log_file:
         server_log_tuple = ServerLogConverter.convert_line_to_server_log_tuple(line)
-
+        probing_attack = pc.classify(server_log_tuple)
         # classify and add value to classifiedLine d = ddos, r = r2l...
-        classifiedLine.append("d ")
+        if probing_attack == 1:
+            classifiedLine.append("p ")
+        else:
+            classifiedLine.append("- ")
 
     # close original file
     opened_log_file.close()
