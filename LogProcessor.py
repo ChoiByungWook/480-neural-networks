@@ -2,25 +2,14 @@ import fileinput
 import shutil
 import sys
 
+import flask
+
 import ServerLogConverter
 
 LOG_PATH = "logs/"
 MARKED = "marked_"
 
-
-def main():
-    file = str(sys.argv[1])
-    log_file = LOG_PATH + file
-
-    # copy marked file for classification
-    marked_file = LOG_PATH + MARKED + file
-    shutil.copyfile(log_file, marked_file)
-
-    # classify each line
-    classifiedLines = classifyLogFile(log_file)
-
-    # mark log file with classifies
-    markLogFile(classifiedLines, marked_file)
+app = flask.Flask(__name__)
 
 
 def markLogFile(classifiedLine, marked_file):
@@ -48,5 +37,23 @@ def classifyLogFile(log_file):
     return classifiedLine
 
 
+@app.route('/')
+def main():
+    file = str("serverlogs.txt")
+    log_file = LOG_PATH + file
+
+    # copy marked file for classification
+    marked_file = LOG_PATH + MARKED + file
+    shutil.copyfile(log_file, marked_file)
+
+    # classify each line
+    classifiedLines = classifyLogFile(log_file)
+
+    # mark log file with classifies
+    markLogFile(classifiedLines, marked_file)
+
+    return "Hello"
+
+
 if __name__ == '__main__':
-    main()
+    app.run()
