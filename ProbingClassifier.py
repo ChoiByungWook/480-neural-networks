@@ -1,4 +1,5 @@
 import collections
+import csv
 
 ProbingAttackFinalScore = collections.namedtuple('probing_attack_final_score', ["src_ip", "time", "score"])
 
@@ -41,6 +42,16 @@ class ProbingClassifier:
         for src_ip in self.current_probing_attacks:
             probing_attack_final_score = ProbingAttackFinalScore(src_ip, self.current_time, self.src_ip_score[src_ip])
             self.final_time_score.append(probing_attack_final_score)
+
+    def convert_to_csv(self, file_name):
+        headers = ['src_ip', 'time', 'score']
+
+        csv_file_name = "csv/" + file_name + "_probing_classifer.csv"
+        with open(csv_file_name, 'w', newline='') as csvfile:
+            csv_writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+            csv_writer.writerow(headers)
+            for i in self.final_time_score:
+                csv_writer.writerow(i)
 
     def __apply_points(self, destination_port):
         """
