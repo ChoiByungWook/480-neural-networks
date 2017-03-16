@@ -6,22 +6,18 @@ import flask
 
 import ServerLogConverter
 
-LOG_PATH = "logs/"
-MARKED = "marked_"
+__LOG_PATH = "logs/"
+__MARKED = "marked_"
 
 app = flask.Flask(__name__)
 
 
-def markLogFile(classifiedLine, marked_file):
-    opened_marked_log_file = fileinput.input(marked_file, inplace=True)
+def __classifyLogFile(log_file):
+    '''
 
-    for line, classifier in zip(opened_marked_log_file, classifiedLine):
-        sys.stdout.write(classifier + line)
-
-    opened_marked_log_file.close()
-
-
-def classifyLogFile(log_file):
+    :param log_file:
+    :return:
+    '''
     classifiedLine = []
 
     opened_log_file = fileinput.input(log_file)
@@ -37,20 +33,35 @@ def classifyLogFile(log_file):
     return classifiedLine
 
 
+def __markLogFile(classifiedLine, marked_file):
+    '''
+
+    :param classifiedLine:
+    :param marked_file:
+    :return:
+    '''
+    opened_marked_log_file = fileinput.input(marked_file, inplace=True)
+
+    for line, classifier in zip(opened_marked_log_file, classifiedLine):
+        sys.stdout.write(classifier + line)
+
+    opened_marked_log_file.close()
+
+
 @app.route('/')
-def main():
+def __main():
     file = str("serverlogs.txt")
-    log_file = LOG_PATH + file
+    log_file = __LOG_PATH + file
 
     # copy marked file for classification
-    marked_file = LOG_PATH + MARKED + file
+    marked_file = __LOG_PATH + __MARKED + file
     shutil.copyfile(log_file, marked_file)
 
     # classify each line
-    classifiedLines = classifyLogFile(log_file)
+    classifiedLines = __classifyLogFile(log_file)
 
     # mark log file with classifies
-    markLogFile(classifiedLines, marked_file)
+    __markLogFile(classifiedLines, marked_file)
 
     return "Hello"
 
