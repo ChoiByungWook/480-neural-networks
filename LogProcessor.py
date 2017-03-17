@@ -5,11 +5,15 @@ import sys
 import flask
 
 import ServerLogConverter
+from DosClassifier import DosClassifier
+from ProbingClassifier import ProbingClassifier
 
 __LOG_PATH = "logs/"
 __MARKED = "marked_"
 
 app = flask.Flask(__name__)
+
+__pc = ProbingClassifier()
 
 
 def __classifyLogFile(log_file):
@@ -23,9 +27,23 @@ def __classifyLogFile(log_file):
     opened_log_file = fileinput.input(log_file)
     for line in opened_log_file:
         server_log_tuple = ServerLogConverter.convert_line_to_server_log_tuple(line)
-
+        probing_attack = __pc.classify(server_log_tuple)
+        dos_attack = DosClassifier.classify(server_log_tuple)
         # classify and add value to classifiedLine d = ddos, r = r2l...
-        classifiedLine.append("d ")
+        classifierString = ""
+
+        if probing_attack == 1:
+            classifierString += "p"
+        else:
+            classifierString += "-"
+
+        if dos_attack:
+            classifierString += "d"
+        else:
+            classifierString += "-"
+
+        classifierString += " "
+        classifiedLine.append(classifierString)
 
     # close original file
     opened_log_file.close()
@@ -49,6 +67,11 @@ def __markLogFile(classifiedLine, marked_file):
 
 
 @app.route('/')
+def my_form():
+    return flask.render_template("index.html")
+
+
+@app.route('/', methods=['POST'])
 def __main():
     file = str("serverlogs.txt")
     log_file = __LOG_PATH + file
@@ -62,6 +85,8 @@ def __main():
 
     # mark log file with classifies
     __markLogFile(classifiedLines, marked_file)
+
+    __pc.convert_to_csv(file.replace(".txt", ""))
 
     return "Hello"
 

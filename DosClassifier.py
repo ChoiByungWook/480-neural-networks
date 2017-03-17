@@ -15,10 +15,11 @@ class DosClassifier:
     threshold = 5
     current_time = None
 
+
     # Used for Metric Data
     values_for_requests_per_hour = []
     average_requests_per_hour = 0
-
+    
     ''' Pretty prints the interval_frequency dictionary
     To be used internally.
     '''
@@ -75,6 +76,7 @@ class DosClassifier:
         else:
             return False
 
+
     # number of requests per hour over 24 hours - done
     # average of requests per hour
     def calculate_final_score():
@@ -82,7 +84,3 @@ class DosClassifier:
         for val in DosClassifier.final_requests_per_hour.values():
             sum_of_requests += val
         DosClassifier.average_requests_per_hour = sum_of_requests / 24 # 1927 for now
-
-
-
-
