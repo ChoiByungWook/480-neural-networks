@@ -35,3 +35,11 @@ def convert_line_to_server_log_tuple(line):
                                       destination_ip)
 
     return server_log_tuple
+
+def isValid(line):
+    split_line = line.rstrip().split(" ")
+
+    if len(split_line) != 9:
+        return False
+
+    return True

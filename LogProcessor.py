@@ -32,25 +32,27 @@ def __classifyLogFile(log_file):
 
     opened_log_file = fileinput.input(log_file)
     for line in opened_log_file:
-        server_log_tuple = ServerLogConverter.convert_line_to_server_log_tuple(line)
-        probing_attack = __pc.classify(server_log_tuple)
-        dos_attack = DosClassifier.classify(server_log_tuple)
-        # classify and add value to classifiedLine d = ddos, r = r2l...
-        classifierString = ""
+        if(ServerLogConverter.isValid(line)):
+            server_log_tuple = ServerLogConverter.convert_line_to_server_log_tuple(line)
+            probing_attack = __pc.classify(server_log_tuple)
+            dos_attack = DosClassifier.classify(server_log_tuple)
+            # classify and add value to classifiedLine d = ddos, r = r2l...
+            classifierString = ""
 
-        if probing_attack == 1:
-            classifierString += "p"
+            if probing_attack == 1:
+                classifierString += "p"
+            else:
+                classifierString += "-"
+
+            if dos_attack:
+                classifierString += "d"
+            else:
+                classifierString += "-"
+
+            classifierString += " "
+            classifiedLine.append(classifierString)
         else:
-            classifierString += "-"
-
-        if dos_attack:
-            classifierString += "d"
-        else:
-            classifierString += "-"
-
-        classifierString += " "
-        classifiedLine.append(classifierString)
-
+            return []
     # close original file
     opened_log_file.close()
 
@@ -107,12 +109,15 @@ def __main():
             # classify each line
             classifiedLines = __classifyLogFile(log_file)
 
+            if not classifiedLines:
+                return "Log file doesn't follow specific format."
+
             # mark log file with classifies
             __markLogFile(classifiedLines, marked_file)
 
             return "Successfully classified server log."
 
-    return "Failed to classify log."
+    return "Log file must be a .txt file."
 
 
 if __name__ == '__main__':
