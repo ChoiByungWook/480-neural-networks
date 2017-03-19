@@ -1,8 +1,11 @@
 import fileinput
+import os
 import shutil
 import sys
 
 import flask
+from flask import flash, request, url_for
+from werkzeug.utils import redirect, secure_filename
 
 import ServerLogConverter
 from DosClassifier import DosClassifier
@@ -11,7 +14,10 @@ from ProbingClassifier import ProbingClassifier
 __LOG_PATH = "logs/"
 __MARKED = "marked_"
 
+ALLOWED_EXTENSIONS = {'txt'}
+
 app = flask.Flask(__name__)
+app.config['UPLOAD_FOLDER'] = __LOG_PATH
 
 __pc = ProbingClassifier()
 
@@ -65,6 +71,9 @@ def __markLogFile(classifiedLine, marked_file):
 
     opened_marked_log_file.close()
 
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/')
 def my_form():
@@ -73,20 +82,37 @@ def my_form():
 
 @app.route('/', methods=['POST'])
 def __main():
-    file = str("serverlogs.txt")
-    log_file = __LOG_PATH + file
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
 
-    # copy marked file for classification
-    marked_file = __LOG_PATH + __MARKED + file
-    shutil.copyfile(log_file, marked_file)
+        file = request.files['file']
+        # if user does not select file, browser also
+        # submit a empty part without filename
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
 
-    # classify each line
-    classifiedLines = __classifyLogFile(log_file)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-    # mark log file with classifies
-    __markLogFile(classifiedLines, marked_file)
+            log_file = __LOG_PATH + file.filename
+            # copy marked file for classification
+            marked_file = __LOG_PATH + __MARKED + file.filename
+            shutil.copyfile(log_file, marked_file)
 
-    return "Hello"
+            # classify each line
+            classifiedLines = __classifyLogFile(log_file)
+
+            # mark log file with classifies
+            __markLogFile(classifiedLines, marked_file)
+
+            return "Successfully classified server log."
+
+    return "Failed to classify log."
 
 
 if __name__ == '__main__':
