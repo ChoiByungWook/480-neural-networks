@@ -86,8 +86,6 @@ def __main():
     # mark log file with classifies
     __markLogFile(classifiedLines, marked_file)
 
-    __pc.convert_to_csv(file.replace(".txt", ""))
-
     return "Hello"
 
 
