@@ -1,7 +1,7 @@
 import boto3
 
 __s3 = boto3.client('s3')
-__BUCKET_NAME = "480-rule-based-logs"
+__BUCKET_NAME = "FOOBAR"
 
 
 def save_file_to_s3(path, file_name):
